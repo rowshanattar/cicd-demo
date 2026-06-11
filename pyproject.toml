@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cicd-demo"
+version = "0.1.0"
+description = "Demo FastAPI app for learning CI/CD with GitHub Actions"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.29",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "httpx>=0.27",    # required by FastAPI TestClient
+    "ruff>=0.4",
+    "pip-audit>=2.7",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]   # pycodestyle errors, pyflakes, isort
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

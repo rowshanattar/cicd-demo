@@ -1,0 +1,46 @@
+# Builds a Docker image and pushes it to GitHub Container Registry (ghcr.io).
+# Runs on every push to main — meaning every merged PR triggers a new image.
+
+name: Build & Push
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write  # required to push to ghcr.io
+
+jobs:
+  build:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af68a  # v4.2.2
+
+      # Buildx adds multi-platform support and better caching over plain docker build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2  # v3.10.0
+
+      # GITHUB_TOKEN is injected automatically — no secrets to manage
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Tag with both 'latest' and the exact commit SHA.
+      # 'latest' is convenient; the SHA tag lets you trace exactly which commit an image came from.
+      - name: Build and push
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83  # v6.18.0
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+          cache-from: type=gha   # use GitHub Actions cache to speed up repeated builds
+          cache-to: type=gha,mode=max

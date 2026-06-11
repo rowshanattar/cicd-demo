@@ -1,0 +1,21 @@
+# Dependabot opens automated PRs when your dependencies have updates.
+# It covers two ecosystems: pip packages and GitHub Actions (the pinned SHAs).
+
+version: 2
+updates:
+  # Keep Python dependencies up to date
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+
+  # Keep GitHub Actions pinned SHAs up to date
+  # Without this, your pinned actions silently fall behind on security patches
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5

@@ -1,0 +1,51 @@
+# Creates a GitHub Release when a version tag (e.g. v1.2.3) is pushed.
+# Attaches a built Python wheel as a release asset.
+#
+# How to trigger:
+#   git tag v0.2.0
+#   git push origin v0.2.0
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write  # required to create a GitHub Release
+
+jobs:
+  release:
+    name: Build and release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af68a  # v4.2.2
+        with:
+          fetch-depth: 0  # full history needed for auto-generated release notes
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build
+
+      # 'python -m build' produces both a .whl and a .tar.gz in dist/
+      - name: Build distribution
+        run: python -m build
+
+      # gh release create uses the GitHub CLI (pre-installed on GitHub runners).
+      # --generate-notes auto-populates the release body with merged PRs since the last tag.
+      # --verify-tag ensures the tag actually exists before creating the release.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            dist/*.whl dist/*.tar.gz \
+            --title "Release ${{ github.ref_name }}" \
+            --generate-notes \
+            --verify-tag

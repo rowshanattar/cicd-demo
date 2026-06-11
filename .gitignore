@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.whl
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# env
+.env
+.secrets
+
+# macOS
+.DS_Store
+
+# Claude
+CLAUDE.local.md
+.claude/
+
+# Personal notes
+pipeline-walkthrough.md
