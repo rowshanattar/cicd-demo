@@ -22,6 +22,14 @@ def list_items():
     return {"items": _items}
 
 
+@app.get("/items/{name}")
+def get_item(name: str):
+    for i in _items:
+        if i["name"] == name:
+            return i
+    raise HTTPException(status_code=404, detail="Item not found")
+
+
 @app.post("/items", status_code=201)
 def create_item(item: Item):
     if any(i["name"] == item.name for i in _items):
